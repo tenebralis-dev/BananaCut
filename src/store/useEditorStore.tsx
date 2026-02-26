@@ -64,6 +64,15 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
                 imageMeta: action.payload,
             };
 
+        case 'SET_IMAGE_KEEP_NAMES': {
+            const { meta, keepNames } = action.payload;
+            return {
+                ...initialState,
+                imageMeta: meta,
+                namePool: keepNames ? state.namePool : [],
+            };
+        }
+
         // ---------- 视口 ----------
         case 'SET_VIEWPORT':
             return {

@@ -678,3 +678,33 @@ body {
   background: var(--color-border);
   margin: var(--spacing-lg) 0;
 }
+
+/* ==================== 确认对话框 ==================== */
+
+.confirm-dialog {
+  width: 400px;
+  max-width: 90vw;
+}
+
+.confirm-message {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.confirm-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 13px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.confirm-checkbox input[type="checkbox"] {
+  accent-color: var(--color-primary);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}

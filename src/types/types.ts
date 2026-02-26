@@ -106,6 +106,7 @@ export interface EditorState {
 /** 所有 Action 类型 */
 export type EditorAction =
   | { type: 'SET_IMAGE'; payload: ImageMeta }
+  | { type: 'SET_IMAGE_KEEP_NAMES'; payload: { meta: ImageMeta; keepNames: boolean } }
   | { type: 'SET_VIEWPORT'; payload: Partial<ViewportState> }
   | { type: 'SET_EDIT_MODE'; payload: EditMode }
   | { type: 'SET_GRID'; payload: { rows: number; cols: number } }
