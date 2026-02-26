@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prd folder
+prd/
+
+# prompts folder
+prompts/
+
+# temp folder
+tmp/
+
+# icon folder
+icon/
