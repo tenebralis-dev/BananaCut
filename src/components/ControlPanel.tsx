@@ -21,6 +21,7 @@ export default function ControlPanel() {
         sortOrder,
         namingFormat,
         squarePadding,
+        resizeSetting,
         imageMeta,
         splitLines,
         cropBlocks,
@@ -60,6 +61,9 @@ export default function ControlPanel() {
         }
         return cropBlocks.length;
     };
+
+    // ---- resize 预设 ----
+    const RESIZE_PRESETS = [256, 512, 800, 1024];
 
     return (
         <div className="panel">
@@ -301,6 +305,61 @@ export default function ControlPanel() {
                                 <span style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>{squarePadding.bgColor}</span>
                             </div>
                         )}
+                    </>
+                )}
+            </div>
+
+            {/* ===== 输出尺寸设置 ===== */}
+            <div className="panel-section">
+                <div className="panel-section-title">输出尺寸</div>
+                <div className="btn-group">
+                    <button
+                        className={`btn ${resizeSetting.enabled ? 'active' : ''}`}
+                        onClick={() => dispatch({ type: 'SET_RESIZE_SETTING', payload: { enabled: true } })}
+                    >
+                        📐 统一尺寸
+                    </button>
+                    <button
+                        className={`btn ${!resizeSetting.enabled ? 'active' : ''}`}
+                        onClick={() => dispatch({ type: 'SET_RESIZE_SETTING', payload: { enabled: false } })}
+                    >
+                        📏 原始尺寸
+                    </button>
+                </div>
+                {resizeSetting.enabled && (
+                    <>
+                        <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span className="form-label">边长</span>
+                            <input
+                                type="number"
+                                className="form-input form-input-number"
+                                value={resizeSetting.size}
+                                min={16}
+                                max={4096}
+                                onChange={(e) => {
+                                    const val = Math.max(16, Math.min(4096, parseInt(e.target.value) || 16));
+                                    dispatch({ type: 'SET_RESIZE_SETTING', payload: { size: val } });
+                                }}
+                            />
+                            <span style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>px</span>
+                        </div>
+                        <div style={{ marginTop: 8 }}>
+                            <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginBottom: 4 }}>快捷预设</div>
+                            <div className="btn-group">
+                                {RESIZE_PRESETS.map((preset) => (
+                                    <button
+                                        key={preset}
+                                        className={`btn btn-sm ${resizeSetting.size === preset ? 'active' : ''}`}
+                                        onClick={() => dispatch({ type: 'SET_RESIZE_SETTING', payload: { size: preset } })}
+                                    >
+                                        {preset}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div style={{ marginTop: 6, fontSize: 11, color: 'var(--color-text-muted)' }}>
+                            输出 {resizeSetting.size}×{resizeSetting.size} px
+                        </div>
                     </>
                 )}
             </div>

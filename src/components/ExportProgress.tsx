@@ -12,7 +12,7 @@ import type { CropBlock } from '@/types/types';
  */
 export default function ExportProgress() {
     const { state, dispatch } = useEditor();
-    const { isExporting, exportProgress, imageMeta, editMode, splitLines, cropBlocks, namingFormat, sortOrder, squarePadding } = state;
+    const { isExporting, exportProgress, imageMeta, editMode, splitLines, cropBlocks, namingFormat, sortOrder, squarePadding, resizeSetting } = state;
     const exportingRef = useRef(false);
 
     useEffect(() => {
@@ -46,7 +46,7 @@ export default function ExportProgress() {
             try {
                 await exportToZip(img, sorted, namingFormat, sortOrder, squarePadding, (current, total) => {
                     dispatch({ type: 'SET_EXPORT_PROGRESS', payload: { current, total } });
-                });
+                }, resizeSetting);
             } catch (err) {
                 console.error('导出失败:', err);
             } finally {
@@ -57,7 +57,7 @@ export default function ExportProgress() {
         };
 
         doExport();
-    }, [isExporting, imageMeta, editMode, splitLines, cropBlocks, namingFormat, sortOrder, squarePadding, dispatch]);
+    }, [isExporting, imageMeta, editMode, splitLines, cropBlocks, namingFormat, sortOrder, squarePadding, resizeSetting, dispatch]);
 
     if (!isExporting || !exportProgress) return null;
 

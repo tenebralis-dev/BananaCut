@@ -5,7 +5,7 @@
 
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import type { CropBlock, NamingFormat, SortOrder, SquarePadding } from '@/types/types';
+import type { CropBlock, NamingFormat, SortOrder, SquarePadding, ResizeSetting } from '@/types/types';
 import { sortBlocks, getBlockPosition, generateFileName } from './cropUtils';
 
 /**
@@ -19,7 +19,8 @@ import { sortBlocks, getBlockPosition, generateFileName } from './cropUtils';
 export async function cropAndSquare(
     image: HTMLImageElement,
     block: CropBlock,
-    padding: SquarePadding = { enabled: true, bgMode: 'transparent', bgColor: '#ffffff' }
+    padding: SquarePadding = { enabled: true, bgMode: 'transparent', bgColor: '#ffffff' },
+    resize?: ResizeSetting
 ): Promise<Blob> {
     let canvasW: number;
     let canvasH: number;
@@ -59,9 +60,29 @@ export async function cropAndSquare(
         dx, dy, block.width, block.height
     );
 
+    // ---- Resize 阶段 ----
+    let finalCanvas = canvas;
+    if (resize?.enabled && resize.size > 0) {
+        const resizeCanvas = document.createElement('canvas');
+        resizeCanvas.width = resize.size;
+        resizeCanvas.height = resize.size;
+        const resizeCtx = resizeCanvas.getContext('2d');
+        if (!resizeCtx) throw new Error('无法创建 Resize Canvas 2D 上下文');
+
+        // 若有背景色则先填充
+        if (padding.enabled && padding.bgMode === 'color') {
+            resizeCtx.fillStyle = padding.bgColor;
+            resizeCtx.fillRect(0, 0, resize.size, resize.size);
+        }
+
+        // 将中间画布缩放绘制到目标尺寸
+        resizeCtx.drawImage(canvas, 0, 0, canvasW, canvasH, 0, 0, resize.size, resize.size);
+        finalCanvas = resizeCanvas;
+    }
+
     // 转换为 Blob
     return new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(
+        finalCanvas.toBlob(
             (blob) => {
                 if (blob) resolve(blob);
                 else reject(new Error('Canvas toBlob 失败'));
@@ -80,7 +101,8 @@ export async function exportToZip(
     format: NamingFormat,
     sortOrder: SortOrder,
     padding: SquarePadding,
-    onProgress: (current: number, total: number) => void
+    onProgress: (current: number, total: number) => void,
+    resize?: ResizeSetting
 ): Promise<void> {
     const zip = new JSZip();
     const sorted = sortBlocks(blocks, sortOrder);
@@ -92,7 +114,7 @@ export async function exportToZip(
         const { row, col } = getBlockPosition(block, blocks, sortOrder);
         const fileName = generateFileName(block, row, col, format, usedNames);
 
-        const blob = await cropAndSquare(image, block, padding);
+        const blob = await cropAndSquare(image, block, padding, resize);
         zip.file(fileName, blob);
 
         onProgress(i + 1, total);
@@ -113,7 +135,8 @@ export async function exportToZip(
 export async function generatePreviewDataUrl(
     image: HTMLImageElement,
     block: CropBlock,
-    padding: SquarePadding = { enabled: true, bgMode: 'transparent', bgColor: '#ffffff' }
+    padding: SquarePadding = { enabled: true, bgMode: 'transparent', bgColor: '#ffffff' },
+    resize?: ResizeSetting
 ): Promise<string> {
     let canvasW: number;
     let canvasH: number;
@@ -150,6 +173,23 @@ export async function generatePreviewDataUrl(
         block.x, block.y, block.width, block.height,
         dx, dy, block.width, block.height
     );
+
+    // ---- Resize 阶段 ----
+    if (resize?.enabled && resize.size > 0) {
+        const resizeCanvas = document.createElement('canvas');
+        resizeCanvas.width = resize.size;
+        resizeCanvas.height = resize.size;
+        const resizeCtx = resizeCanvas.getContext('2d');
+        if (!resizeCtx) throw new Error('无法创建 Resize Canvas 2D 上下文');
+
+        if (padding.enabled && padding.bgMode === 'color') {
+            resizeCtx.fillStyle = padding.bgColor;
+            resizeCtx.fillRect(0, 0, resize.size, resize.size);
+        }
+
+        resizeCtx.drawImage(canvas, 0, 0, canvasW, canvasH, 0, 0, resize.size, resize.size);
+        return resizeCanvas.toDataURL('image/png');
+    }
 
     return canvas.toDataURL('image/png');
 }

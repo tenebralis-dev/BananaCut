@@ -22,6 +22,7 @@ export const initialState: EditorState = {
     aspectRatio: { mode: 'free' },
     namingFormat: 'name',
     squarePadding: { enabled: true, bgMode: 'transparent', bgColor: '#ffffff' },
+    resizeSetting: { enabled: false, size: 800 },
     namePool: [],
     gridRows: 3,
     gridCols: 3,
@@ -191,6 +192,9 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
 
         case 'SET_SQUARE_PADDING':
             return { ...state, squarePadding: { ...state.squarePadding, ...action.payload } };
+
+        case 'SET_RESIZE_SETTING':
+            return { ...state, resizeSetting: { ...state.resizeSetting, ...action.payload } };
 
         // ---------- 导出状态 ----------
         case 'SET_EXPORTING':

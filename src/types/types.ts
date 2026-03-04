@@ -49,6 +49,12 @@ export interface SquarePadding {
   bgColor: string;            // 纯色填充时的颜色值（hex），默认 '#ffffff'
 }
 
+/** 统一输出尺寸设置（正方形） */
+export interface ResizeSetting {
+  enabled: boolean;  // 是否启用统一 resize
+  size: number;      // 输出正方形边长 (px)，默认 800
+}
+
 /** 自由框比例设置 */
 export interface AspectRatioSetting {
   mode: 'free' | '1:1' | 'custom';
@@ -96,6 +102,8 @@ export interface EditorState {
   // 撤销/重做栈
   undoStack: EditorSnapshot[];
   redoStack: EditorSnapshot[];
+  // 输出尺寸设置
+  resizeSetting: ResizeSetting;
   // 导出状态
   isExporting: boolean;
   exportProgress: { current: number; total: number } | null;
@@ -128,6 +136,7 @@ export type EditorAction =
   | { type: 'SET_GRID_SIZE'; payload: { rows: number; cols: number } }
   | { type: 'SET_EXPORTING'; payload: boolean }
   | { type: 'SET_EXPORT_PROGRESS'; payload: { current: number; total: number } | null }
+  | { type: 'SET_RESIZE_SETTING'; payload: Partial<ResizeSetting> }
   | { type: 'SET_SHOW_PREVIEW'; payload: boolean }
   | { type: 'UNDO' }
   | { type: 'REDO' }

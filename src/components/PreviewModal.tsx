@@ -12,7 +12,7 @@ import type { CropBlock, NamingFormat, SortOrder } from '@/types/types';
  */
 export default function PreviewModal() {
     const { state, dispatch } = useEditor();
-    const { showPreview, imageMeta, editMode, splitLines, cropBlocks, sortOrder, namingFormat, namePool, squarePadding } = state;
+    const { showPreview, imageMeta, editMode, splitLines, cropBlocks, sortOrder, namingFormat, namePool, squarePadding, resizeSetting } = state;
 
     const [previews, setPreviews] = useState<Array<{ dataUrl: string; fileName: string }>>([]);
     const [loading, setLoading] = useState(false);
@@ -54,7 +54,7 @@ export default function PreviewModal() {
             for (const block of sorted) {
                 const { row, col } = getBlockPosition(block, blocks, sortOrder);
                 const fileName = generateFileName(block, row, col, namingFormat, usedNames);
-                const dataUrl = await generatePreviewDataUrl(img, block, squarePadding);
+                const dataUrl = await generatePreviewDataUrl(img, block, squarePadding, resizeSetting);
                 results.push({ dataUrl, fileName });
             }
 
@@ -63,7 +63,7 @@ export default function PreviewModal() {
         };
 
         loadPreviews();
-    }, [showPreview, imageMeta, editMode, splitLines, cropBlocks, sortOrder, namingFormat, squarePadding]);
+    }, [showPreview, imageMeta, editMode, splitLines, cropBlocks, sortOrder, namingFormat, squarePadding, resizeSetting]);
 
     if (!showPreview) return null;
 
@@ -71,7 +71,7 @@ export default function PreviewModal() {
         <div className="modal-overlay" onClick={() => dispatch({ type: 'SET_SHOW_PREVIEW', payload: false })}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ width: '70vw' }}>
                 <div className="modal-header">
-                    <h2>📋 导出预览 ({previews.length} 张)</h2>
+                    <h2>📋 导出预览 ({previews.length} 张{resizeSetting.enabled ? `, ${resizeSetting.size}×${resizeSetting.size}` : ''})</h2>
                     <button
                         className="btn btn-sm"
                         onClick={() => dispatch({ type: 'SET_SHOW_PREVIEW', payload: false })}
